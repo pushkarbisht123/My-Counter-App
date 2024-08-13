@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">\
+    <link rel="icon" type="image/x-icon" href="add2.jpg">
+    <title>Responsive Enhanced Counter with Undo/Redo</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #74ebd5, #ACB6E5);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: #333;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+            font-size: 1.5em;
+            box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            margin-top: auto;
+            box-shadow: 0px -5px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        #main {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            width: 90%;
+            max-width: 400px;
+            margin: 20px auto;
+            box-sizing: border-box;
+        }
+
+        #show {
+            font-size: 3em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            margin: 10px 0;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #ddd;
+            height: 8px;
+            border-radius: 5px;
+            outline: none;
+            transition: background 0.3s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #FF6B6B;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            transition: background 0.3s ease;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #FF6B6B;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            transition: background 0.3s ease;
+        }
+
+        button {
+            flex: 1;
+            padding: 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            background-color: #FF6B6B;
+            color: white;
+            font-size: 1em;
+            cursor: pointer;
+            box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #FF4C4C;
+            transform: translateY(-3px);
+        }
+
+        button:active {
+            background-color: #D14444;
+            transform: translateY(1px);
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            flex-wrap: wrap;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            #main {
+                padding: 15px;
+            }
+
+            #show {
+                font-size: 2.5em;
+            }
+
+            button {
+                padding: 8px;
+                font-size: 0.9em;
+            }
+
+            input[type="range"]::-webkit-slider-thumb,
+            input[type="range"]::-moz-range-thumb {
+                width: 15px;
+                height: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        My Counter App
+    </header>
+
+    <div id="main">
+        <p id="show">0</p>
+        <input type="range" id="rage" max="150">
+        <div class="button-container">
+            <button id="btn1">Add</button>
+            <button id="btn2">Remove</button>
+            <button id="reset">Reset</button>
+            
+        </div>
+        <div class="button-container">
+            <button id="undo">Undo</button>
+            <button id="redo">Redo</button>
+        </div>
+    </div>
+
+    <footer>
+        © 2024 My Counter App. All rights reserved.
+    </footer>
+
+    <script>
+        let x = 0;
+        let history = [0]; 
+        let historyIndex = 0;
+
+        let add = document.getElementById("btn1");
+        let remove = document.getElementById("btn2");
+        let range = document.getElementById("rage");
+        let show = document.getElementById("show");
+        let reset = document.getElementById("reset");
+        let undo = document.getElementById("undo");
+        let redo = document.getElementById("redo");
+
+        window.onload = function() {
+            range.value = 0;
+        }
+
+        function updateDisplay() {
+            show.innerHTML = x;
+            range.value = x;
+        }
+
+        function addToHistory(value) {
+            history = history.slice(0, historyIndex + 1); 
+            history.push(value);
+            historyIndex++;
+        }
+
+        add.onclick = function() {
+            x = x + 1;
+            addToHistory(x);
+            updateDisplay();
+        }
+
+        remove.onclick = function() {
+            if (x > 0) {
+                x = x - 1;
+                addToHistory(x);
+                updateDisplay();
+            }
+        }
+
+        range.oninput = function() {
+            x = parseInt(range.value);
+            addToHistory(x);
+            updateDisplay();
+        }
+
+        reset.onclick = function() {
+            x = 0;
+            addToHistory(x);
+            updateDisplay();
+        }
+
+        undo.onclick = function() {
+            if (historyIndex > 0) {
+                historyIndex--;
+                x = history[historyIndex];
+                updateDisplay();
+            }
+        }
+
+        redo.onclick = function() {
+            if (historyIndex < history.length - 1) {
+                historyIndex++;
+                x = history[historyIndex];
+                updateDisplay();
+            }
+        }
+    </script>
+</body>
+</html>
